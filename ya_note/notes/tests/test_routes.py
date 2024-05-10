@@ -5,7 +5,6 @@ from http import HTTPStatus
 
 from notes.models import Note
 
-
 User = get_user_model()
 
 
@@ -22,16 +21,14 @@ class TestRoutes(TestCase):
 
     def test_pages_for_auth_user(self):
         urls = (
-            'notes:add',
-            'notes:list',
-            'notes:success',
+            '/add/',
+            '/notes/',
+            '/done/',
         )
         self.client.force_login(self.author)
-        for name in urls:
-            with self.subTest():
-                url = reverse(name)
-                response = self.client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+        for url in urls:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_pages_note_edit_delete_for_author_only(self):
         users_statuses = (
@@ -39,44 +36,40 @@ class TestRoutes(TestCase):
             (self.another_author, HTTPStatus.NOT_FOUND),
         )
         urls = (
-            'notes:edit',
-            'notes:detail',
-            'notes:delete',
+            '/edit/slug-text/',
+            '/note/slug-text/',
+            '/delete/slug-text/',
         )
         for user, status in users_statuses:
             self.client.force_login(user)
-            for name in urls:
-                with self.subTest(user=user, name=name):
-                    url = reverse(name, args=(self.note.slug,))
-                    response = self.client.get(url)
-                    self.assertEqual(response.status_code, status)
+            for url in urls:
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, status)
 
     def test_home_and_auth_pages_for_anonymous_user(self):
         urls = (
-            'notes:home',
-            'users:login',
-            'users:signup',
-            'users:logout',
+            '/',
+            '/auth/login/',
+            '/auth/signup/',
+            '/auth/logout/',
         )
-        for name in urls:
-            with self.subTest():
-                url = reverse(name)
-                response = self.client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+        for url in urls:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_pages_redirect(self):
-        login_url = reverse('users:login')
+        login_url = '/auth/login/'  # Explicit login URL
         urls = (
-            ('notes:add', None),
-            ('notes:list', None),
-            ('notes:success', None),
-            ('notes:edit', (self.note.slug,)),
-            ('notes:detail', (self.note.slug,)),
-            ('notes:delete', (self.note.slug,))
+            '/add/',
+            '/notes/',
+            '/done/',
+            f'/edit/{self.note.slug}/',
+            f'/note/{self.note.slug}/',
+            f'/delete/{self.note.slug}/',
         )
-        for name, args in urls:
-            with self.subTest():
-                url = reverse(name, args=args)
-                redirect_url = f'{login_url}?next={url}'
+
+        for url in urls:
+            redirect_url = f'{login_url}?next={url}'
+            with self.subTest(url=url):
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)

@@ -1,7 +1,7 @@
-import pytest
-
-from django.urls import reverse
 from http import HTTPStatus
+
+import pytest
+from django.urls import reverse
 from pytest_django.asserts import assertFormError, assertRedirects
 
 from news.models import Comment
@@ -29,7 +29,7 @@ def test_form_for_auth_user(
     url = reverse('news:detail', args=news_id_for_args)
     response = author_client.post(url, data=form_data)
     assertRedirects(response, f'{url}#comments')
-    assert comments_quantity < Comment.objects.count()
+    assert comments_quantity + 1 == Comment.objects.count()
     comment = Comment.objects.last()
     assert comment.text == form_data['text']
     assert comment.news == news
@@ -59,7 +59,7 @@ def test_auth_user_can_delete_comment(
     comments_url = reverse('news:detail', args=news_id_for_args)
     response = author_client.delete(url)
     assertRedirects(response, comments_url + '#comments')
-    assert comments_quantity > Comment.objects.count()
+    assert comments_quantity == Comment.objects.count() +1
     assert comment_id_for_args not in Comment.objects.all()
 
 
@@ -105,3 +105,8 @@ def test_non_author_cant_edit_comment(
     comment.refresh_from_db()
     comment_from_db = Comment.objects.last()
     assert comment.text == comment_from_db.text
+    assert comment.author == comment_from_db.author
+    assert comment.news == comment_from_db.news
+    assert comment.created == comment_from_db.created
+
+
