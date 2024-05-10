@@ -8,10 +8,10 @@ pytestmark = pytest.mark.django_db
 
 @pytest.mark.parametrize(
     'url_path', (
-        '',
-        'auth/login/',
-        'auth/logout/',
-        'auth/signup/'
+            '',
+            'auth/login/',
+            'auth/logout/',
+            'auth/signup/'
     )
 )
 def test_homepage_available_for_anonymous_user(client, url_path):
