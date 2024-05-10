@@ -19,7 +19,8 @@ def test_homepage_available_for_anonymous_user(client, url_path):
 
 
 @pytest.mark.parametrize(
-    'user, expected_status', (
+    'user, expected_status',
+    (
             (pytest.lazy_fixture('author_client'), HTTPStatus.OK),
             (pytest.lazy_fixture('non_author_client'),
              HTTPStatus.NOT_FOUND)
