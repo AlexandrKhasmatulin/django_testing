@@ -59,7 +59,7 @@ def test_auth_user_can_delete_comment(
     comments_url = reverse('news:detail', args=news_id_for_args)
     response = author_client.delete(url)
     assertRedirects(response, comments_url + '#comments')
-    assert comments_quantity == Comment.objects.count() +1
+    assert comments_quantity == Comment.objects.count() + 1
     assert comment_id_for_args not in Comment.objects.all()
 
 
@@ -108,5 +108,3 @@ def test_non_author_cant_edit_comment(
     assert comment.author == comment_from_db.author
     assert comment.news == comment_from_db.news
     assert comment.created == comment_from_db.created
-
-
